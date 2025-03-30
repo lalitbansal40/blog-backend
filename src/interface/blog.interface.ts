@@ -6,7 +6,7 @@ export interface IBlogList {
     description: string;
     imageurl: string;
     category: string;
-    blogid: ObjectId;
+    blogid: string;
 }
 
 export interface IBlog {
