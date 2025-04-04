@@ -4,16 +4,31 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - docker login -u $DOCKER_ACCOUNT_UNAME -p $DOCKER_ACCOUNT_PASS
+      - echo "Installing Terraform"
+      - curl -o terraform.zip https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip
+      - unzip terraform.zip
+      - mv terraform /usr/local/bin/
+      - terraform -version
   build:
     commands:
       - echo Build started on `date`
       - docker build -t ${ECR_REPO_URL}:${IMAGE_TAG} .
+      - echo "Moving to terraform folder"
+      - cd terraform
+      - terraform init
+      - terraform plan -input=false
+
   post_build:
     commands:
       - echo Build completed on `date`
       - aws ecr get-login-password --region $AWS_REGION | docker login --username $DOCKER_UNAME --password-stdin $DOCKER_PASS
       - docker push ${ECR_REPO_URL}:${IMAGE_TAG}
       - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME ${ECR_REPO_URL}:${IMAGE_TAG} > imagedefinitions.json
+      - echo "Moving to terraform folder"
+      - cd terraform
+      - terraform init
+      - terraform plan -input=false
+
 artifacts:
   files:
     - imagedefinitions.json
