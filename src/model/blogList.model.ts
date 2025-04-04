@@ -7,7 +7,7 @@ const BlogSchema = new Schema<IBlogList>({
     description: { type: String, required: true },
     imageurl: { type: String, required: true },
     category: { type: String, required: true },
-    blogid: { type: Schema.Types.ObjectId, required: true, ref: 'Blog' }
+    blogid: { type: String, required: true, ref: 'Blog' }
 });
 
 const BlogListModel = mongoose.model<IBlogList>('Bloglist', BlogSchema);

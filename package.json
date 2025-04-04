@@ -1,15 +1,15 @@
 {
   "name": "bayanat-backend",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "app.ts",
   "scripts": {
     "build": "tsc --build",
     "clean": "tsc --build --clean",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node index.ts",
-    "start:dev": "nodemon build/index.js",
-    "start:prod": "node build/index.js",
-    "dev": "nodemon --watch './**/*.ts' --exec ts-node src/index.ts"
+    "start": "ts-node app.ts",
+    "start:dev": "nodemon build/app.js",
+    "start:prod": "node build/app.js",
+    "dev": "nodemon --watch './**/*.ts' --exec ts-node src/app.ts"
   },
   "keywords": [],
   "author": "",
