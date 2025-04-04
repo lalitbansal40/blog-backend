@@ -1,0 +1,9 @@
+{
+    "apps": [
+      {
+        "name": "tpk-backend-server",
+        "script": "npm",
+        "args": "run start:prod"
+      }
+    ]
+  }
