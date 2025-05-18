@@ -4,12 +4,28 @@ import { BlogModel } from "../model/blog.model";
 
 export const getBlogList = async (req: Request, res: Response) => {
     try {
-        const blogs = await BlogListModel.find();
-        res.status(200).json(blogs);
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        const skip = (page - 1) * limit;
+
+        const [blogs, total] = await Promise.all([
+            BlogListModel.find().skip(skip).limit(limit),
+            BlogListModel.countDocuments()
+        ]);
+
+        res.status(200).json({
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            blogs
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error fetching blogs', error });
     }
 };
+
 
 export const getBlog = async (req: Request, res: Response) => {
     try {
