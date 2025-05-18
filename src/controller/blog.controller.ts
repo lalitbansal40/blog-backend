@@ -6,12 +6,23 @@ export const getBlogList = async (req: Request, res: Response) => {
     try {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
-
         const skip = (page - 1) * limit;
 
+        const search = (req.query.search as string)?.trim() || '';
+
+        // Build MongoDB filter
+        const searchFilter = search
+            ? {
+                $or: [
+                    { title: { $regex: search, $options: 'i' } },
+                    { content: { $regex: search, $options: 'i' } }
+                ]
+            }
+            : {};
+
         const [blogs, total] = await Promise.all([
-            BlogListModel.find().skip(skip).limit(limit),
-            BlogListModel.countDocuments()
+            BlogListModel.find(searchFilter).skip(skip).limit(limit),
+            BlogListModel.countDocuments(searchFilter)
         ]);
 
         res.status(200).json({
@@ -25,6 +36,7 @@ export const getBlogList = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error fetching blogs', error });
     }
 };
+
 
 
 export const getBlog = async (req: Request, res: Response) => {
