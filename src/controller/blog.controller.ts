@@ -3,39 +3,45 @@ import BlogListModel from "../model/blogList.model";
 import { BlogModel } from "../model/blog.model";
 
 export const getBlogList = async (req: Request, res: Response) => {
-    try {
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 12;
-        const skip = (page - 1) * limit;
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 12;
+    const skip = (page - 1) * limit;
 
-        const search = (req.query.search as string)?.trim() || '';
+    const search = (req.query.search as string)?.trim() || '';
+    const category = (req.query.category as string)?.trim() ;
 
-        // Build MongoDB filter
-        const searchFilter = search
-            ? {
-                $or: [
-                    { title: { $regex: search, $options: 'i' } },
-                    { content: { $regex: search, $options: 'i' } }
-                ]
-            }
-            : {};
+    // Build MongoDB filter
+    const searchFilter: any = {};
 
-        const [blogs, total] = await Promise.all([
-            BlogListModel.find(searchFilter).skip(skip).limit(limit),
-            BlogListModel.countDocuments(searchFilter)
-        ]);
-
-        res.status(200).json({
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
-            totalItems: total,
-            blogs
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching blogs', error });
+    if (search) {
+      searchFilter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } }
+      ];
     }
+
+    if (category) {
+      searchFilter.category = category;
+    }
+
+    const [blogs, total] = await Promise.all([
+      BlogListModel.find(searchFilter).skip(skip).limit(limit),
+      BlogListModel.countDocuments(searchFilter)
+    ]);
+
+    res.status(200).json({
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      totalItems: total,
+      blogs
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching blogs', error });
+  }
 };
+
 
 
 
