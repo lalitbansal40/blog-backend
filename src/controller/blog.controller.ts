@@ -9,7 +9,7 @@ export const getBlogList = async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     const search = (req.query.search as string)?.trim() || '';
-    const category = (req.query.category as string)?.trim() ;
+    const categoryParam = req.query.category as string;
 
     // Build MongoDB filter
     const searchFilter: any = {};
@@ -21,8 +21,11 @@ export const getBlogList = async (req: Request, res: Response) => {
       ];
     }
 
-    if (category) {
-      searchFilter.category = category;
+    if (categoryParam) {
+      const categories = categoryParam.split(',').map((c) => c.trim()).filter(Boolean);
+      if (categories.length > 0) {
+        searchFilter.category = { $in: categories };
+      }
     }
 
     const [blogs, total] = await Promise.all([
@@ -41,6 +44,7 @@ export const getBlogList = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error fetching blogs', error });
   }
 };
+
 
 
 
