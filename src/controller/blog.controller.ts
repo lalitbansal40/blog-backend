@@ -15,14 +15,21 @@ export const getBlogList = async (req: Request, res: Response) => {
     const searchFilter: any = {};
 
     if (search) {
+      const regex = new RegExp(search, 'i'); // case-insensitive
       searchFilter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { content: { $regex: search, $options: 'i' } }
+        { title: { $regex: regex } },
+        { content: { $regex: regex } },
+        { category: { $regex: regex } } // add category to search
       ];
     }
 
     if (categoryParam) {
-      const categories = categoryParam.split(',').map((c) => c.trim()).filter(Boolean);
+      const categories = categoryParam
+        .split(',')
+        .map((c) => c.trim())
+        .filter(Boolean)
+        .map((c) => new RegExp(`^${c}$`, 'i')); // exact match, case-insensitive
+
       if (categories.length > 0) {
         searchFilter.category = { $in: categories };
       }
@@ -44,10 +51,6 @@ export const getBlogList = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error fetching blogs', error });
   }
 };
-
-
-
-
 
 export const getBlog = async (req: Request, res: Response) => {
     try {
